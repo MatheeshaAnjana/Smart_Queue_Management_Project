@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Token Request - Smart Campus Queue</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Sidebar -->
+        <nav class="sidebar">
+            <div class="sidebar-header">
+                <div class="logo">
+                    <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
+                        <rect x="4" y="8" width="24" height="16" rx="2" stroke="#4A90E2" stroke-width="2" fill="none"/>
+                        <path d="M12 14 L16 18 L22 12" stroke="#4A90E2" stroke-width="2" stroke-linecap="round"/>
+                    </svg>
+                    <h1>SMART QUEUE</h1>
+                </div>
+            </div>
+            
+            <ul class="sidebar-menu">
+                <li>
+                    <a href="/dashboard">
+                        <span class="icon">📊</span>
+                        <span>Dashboard</span>
+                    </a>
+                </li>
+                <li class="active">
+                    <a href="/token-request">
+                        <span class="icon">🎫</span>
+                        <span>Token Request</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="/public-display">
+                        <span class="icon">📺</span>
+                        <span>Public Display</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="/counter-control">
+                        <span class="icon">🎮</span>
+                        <span>Counter Control</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="/sort-filter">
+                        <span class="icon">⚡</span>
+                        <span>Sort & Filter</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="/feedback">
+                        <span class="icon">⭐</span>
+                        <span>Feedback</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="/analytics">
+                        <span class="icon">📈</span>
+                        <span>Analytics</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="/algorithm-docs">
+                        <span class="icon">💻</span>
+                        <span>Algorithm Docs</span>
+                    </a>
+                </li>
+            </ul>
+            
+            <div class="sidebar-footer">
+                <p>© 2024 Smart Campus</p>
+            </div>
+        </nav>
+        
+        <!-- Main Content -->
+        <main class="main-content">
+            <header class="top-bar">
+                <h2>Token Request</h2>
+                <div class="user-info">
+                    <span>User</span>
+                    <div class="user-avatar">U</div>
+                </div>
+            </header>
+            
+            <div class="content-area">
+                <div class="form-container">
+                    <h3>Request a Queue Token</h3>
+                    <p class="form-description">Fill in your details to get a queue token</p>
+                    
+                    <form id="token-form" class="token-form">
+                        <div class="form-group">
+                            <label for="user-name">Your Name *</label>
+                            <input type="text" id="user-name" name="user_name" required placeholder="Enter your name">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="user-type">User Type *</label>
+                            <select id="user-type" name="user_type" required>
+                                <option value="">Select user type</option>
+                                <option value="Student">Student</option>
+                                <option value="Staff">Staff</option>
+                                <option value="Emergency">Emergency</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="department">Service Department *</label>
+                            <select id="department" name="department" required>
+                                <option value="">Select department</option>
+                                <option value="Finance">Finance Office</option>
+                                <option value="Library">Library</option>
+                                <option value="Administration">Administration</option>
+                            </select>
+                        </div>
+                        
+                        <button type="submit" class="btn btn-primary btn-large">Request Token</button>
+                    </form>
+                    
+                    <!-- Token Result -->
+                    <div id="token-result" class="token-result" style="display: none;">
+                        <div class="success-icon">✓</div>
+                        <h3>Token Generated Successfully!</h3>
+                        <div class="token-details">
+                            <div class="token-number">
+                                <p>Your Token Number</p>
+                                <h2 id="result-token-id">FIN-001</h2>
+                            </div>
+                            <div class="token-info-grid">
+                                <div>
+                                    <p class="info-label">Queue Position</p>
+                                    <p class="info-value" id="result-position">3</p>
+                                </div>
+                                <div>
+                                    <p class="info-label">Estimated Wait</p>
+                                    <p class="info-value" id="result-wait">15 mins</p>
+                                </div>
+                                <div>
+                                    <p class="info-label">Counter</p>
+                                    <p class="info-value" id="result-counter">Finance-1</p>
+                                </div>
+                                <div>
+                                    <p class="info-label">Department</p>
+                                    <p class="info-value" id="result-department">Finance</p>
+                                </div>
+                            </div>
+                        </div>
+                        <button class="btn btn-secondary" onclick="resetForm()">Request Another Token</button>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+    
+    <script src="/static/js/common.js"></script>
+    <script>
+        const form = document.getElementById('token-form');
+        const tokenResult = document.getElementById('token-result');
+        
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const formData = {
+                user_name: document.getElementById('user-name').value,
+                user_type: document.getElementById('user-type').value,
+                department: document.getElementById('department').value
+            };
+            
+            try {
+                const response = await fetch('/api/token/request', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(formData)
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    // Hide form, show result
+                    form.style.display = 'none';
+                    tokenResult.style.display = 'block';
+                    
+                    // Populate result
+                    document.getElementById('result-token-id').textContent = result.token_id;
+                    document.getElementById('result-position').textContent = result.queue_position;
+                    document.getElementById('result-wait').textContent = result.waiting_time + ' mins';
+                    document.getElementById('result-counter').textContent = result.counter;
+                    document.getElementById('result-department').textContent = result.department;
+                } else {
+                    alert('Error: ' + (result.error || 'Failed to generate token'));
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Failed to request token. Please try again.');
+            }
+        });
+        
+        function resetForm() {
+            form.reset();
+            form.style.display = 'block';
+            tokenResult.style.display = 'none';
+        }
+    </script>
+</body>
+</html>

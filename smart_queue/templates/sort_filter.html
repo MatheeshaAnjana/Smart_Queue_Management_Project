@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sort & Filter - Smart Campus Queue</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+    <div class="container">
+        <nav class="sidebar">
+            <div class="sidebar-header">
+                <div class="logo">
+                    <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
+                        <rect x="4" y="8" width="24" height="16" rx="2" stroke="#4A90E2" stroke-width="2" fill="none"/>
+                        <path d="M12 14 L16 18 L22 12" stroke="#4A90E2" stroke-width="2" stroke-linecap="round"/>
+                    </svg>
+                    <h1>SMART QUEUE</h1>
+                </div>
+            </div>
+            <ul class="sidebar-menu">
+                <li><a href="/dashboard"><span class="icon">📊</span><span>Dashboard</span></a></li>
+                <li><a href="/token-request"><span class="icon">🎫</span><span>Token Request</span></a></li>
+                <li><a href="/public-display"><span class="icon">📺</span><span>Public Display</span></a></li>
+                <li><a href="/counter-control"><span class="icon">🎮</span><span>Counter Control</span></a></li>
+                <li class="active"><a href="/sort-filter"><span class="icon">⚡</span><span>Sort & Filter</span></a></li>
+                <li><a href="/feedback"><span class="icon">⭐</span><span>Feedback</span></a></li>
+                <li><a href="/analytics"><span class="icon">📈</span><span>Analytics</span></a></li>
+                <li><a href="/algorithm-docs"><span class="icon">💻</span><span>Algorithm Docs</span></a></li>
+            </ul>
+            <div class="sidebar-footer"><p>© 2024 Smart Campus</p></div>
+        </nav>
+        <main class="main-content">
+            <header class="top-bar">
+                <h2>Sort & Filter Queue</h2>
+            </header>
+            <div class="content-area">
+                <div class="filter-section">
+                    <h3>Filter & Sort Options</h3>
+                    <div class="filter-controls">
+                        <select id="filter-department" class="form-control">
+                            <option value="Finance">Finance</option>
+                            <option value="Library">Library</option>
+                            <option value="Administration">Administration</option>
+                        </select>
+                        <select id="sort-by" class="form-control">
+                            <option value="token_id">Token ID</option>
+                            <option value="priority">Priority</option>
+                            <option value="timestamp">Time</option>
+                            <option value="department">Department</option>
+                        </select>
+                        <select id="filter-status" class="form-control">
+                            <option value="">All Status</option>
+                            <option value="WAITING">Waiting</option>
+                            <option value="SERVING">Serving</option>
+                            <option value="SERVED">Served</option>
+                            <option value="SKIPPED">Skipped</option>
+                        </select>
+                        <select id="filter-user-type" class="form-control">
+                            <option value="">All Types</option>
+                            <option value="Student">Student</option>
+                            <option value="Staff">Staff</option>
+                            <option value="Emergency">Emergency</option>
+                        </select>
+                        <button id="apply-filters" class="btn btn-primary">Apply</button>
+                    </div>
+                </div>
+                <div class="section">
+                    <h3>Queue Results</h3>
+                    <div class="table-container">
+                        <table class="activity-table">
+                            <thead>
+                                <tr>
+                                    <th>Token</th>
+                                    <th>User</th>
+                                    <th>Type</th>
+                                    <th>Department</th>
+                                    <th>Status</th>
+                                    <th>Counter</th>
+                                    <th>Time</th>
+                                </tr>
+                            </thead>
+                            <tbody id="results-tbody">
+                                <tr><td colspan="7" class="text-center">Select filters and click Apply</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+    <script src="/static/js/common.js"></script>
+    <script>
+        document.getElementById('apply-filters').addEventListener('click', async () => {
+            const department = document.getElementById('filter-department').value;
+            const sortBy = document.getElementById('sort-by').value;
+            const status = document.getElementById('filter-status').value;
+            const userType = document.getElementById('filter-user-type').value;
+            
+            let url = `/api/staff/queue/sorted?department=${department}&sort_by=${sortBy}`;
+            if (status) url += `&status=${status}`;
+            if (userType) url += `&user_type=${userType}`;
+            
+            try {
+                const response = await fetch(url);
+                const data = await response.json();
+                const tbody = document.getElementById('results-tbody');
+                
+                if (!data.tokens || data.tokens.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="7" class="text-center">No tokens found</td></tr>';
+                } else {
+                    tbody.innerHTML = data.tokens.map(token => `
+                        <tr>
+                            <td><span class="token-badge">${token.token_id}</span></td>
+                            <td>${token.user_name}</td>
+                            <td><span class="badge badge-${token.user_type.toLowerCase()}">${token.user_type}</span></td>
+                            <td>${token.department}</td>
+                            <td><span class="status-${token.status.toLowerCase()}">${token.status}</span></td>
+                            <td>${token.counter || '-'}</td>
+                            <td>${new Date(token.timestamp).toLocaleTimeString()}</td>
+                        </tr>
+                    `).join('');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        });
+    </script>
+</body>
+</html>

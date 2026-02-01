@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Counter Control - Smart Campus Queue</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Sidebar -->
+        <nav class="sidebar">
+            <div class="sidebar-header">
+                <div class="logo">
+                    <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
+                        <rect x="4" y="8" width="24" height="16" rx="2" stroke="#4A90E2" stroke-width="2" fill="none"/>
+                        <path d="M12 14 L16 18 L22 12" stroke="#4A90E2" stroke-width="2" stroke-linecap="round"/>
+                    </svg>
+                    <h1>SMART QUEUE</h1>
+                </div>
+            </div>
+            
+            <ul class="sidebar-menu">
+                <li>
+                    <a href="/dashboard">
+                        <span class="icon">📊</span>
+                        <span>Dashboard</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="/token-request">
+                        <span class="icon">🎫</span>
+                        <span>Token Request</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="/public-display">
+                        <span class="icon">📺</span>
+                        <span>Public Display</span>
+                    </a>
+                </li>
+                <li class="active">
+                    <a href="/counter-control">
+                        <span class="icon">🎮</span>
+                        <span>Counter Control</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="/sort-filter">
+                        <span class="icon">⚡</span>
+                        <span>Sort & Filter</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="/feedback">
+                        <span class="icon">⭐</span>
+                        <span>Feedback</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="/analytics">
+                        <span class="icon">📈</span>
+                        <span>Analytics</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="/algorithm-docs">
+                        <span class="icon">💻</span>
+                        <span>Algorithm Docs</span>
+                    </a>
+                </li>
+            </ul>
+            
+            <div class="sidebar-footer">
+                <p>© 2024 Smart Campus</p>
+            </div>
+        </nav>
+        
+        <!-- Main Content -->
+        <main class="main-content">
+            <header class="top-bar">
+                <h2>Counter Control</h2>
+                <div class="user-info">
+                    <span>Staff Member</span>
+                    <div class="user-avatar">S</div>
+                </div>
+            </header>
+            
+            <div class="content-area">
+                <!-- Counter Selection -->
+                <div class="section">
+                    <h3>Select Counter</h3>
+                    <div class="counter-selector">
+                        <select id="counter-select" class="form-control">
+                            <option value="">Select a counter</option>
+                            <option value="Finance-1">Finance Counter 1</option>
+                            <option value="Finance-2">Finance Counter 2</option>
+                            <option value="Library-1">Library Counter 1</option>
+                            <option value="Library-2">Library Counter 2</option>
+                            <option value="Admin-1">Admin Counter 1</option>
+                            <option value="Admin-2">Admin Counter 2</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <!-- Current Token Display -->
+                <div id="counter-panel" class="counter-panel" style="display: none;">
+                    <div class="current-token-display">
+                        <h3>Currently Serving</h3>
+                        <div id="current-token-info" class="token-card large">
+                            <p class="no-token">No token being served</p>
+                        </div>
+                    </div>
+                    
+                    <!-- Action Buttons -->
+                    <div class="action-buttons">
+                        <button id="btn-serve-next" class="btn btn-primary btn-large">
+                            <span>📥</span> Serve Next
+                        </button>
+                        <button id="btn-complete" class="btn btn-success btn-large" disabled>
+                            <span>✓</span> Complete Service
+                        </button>
+                        <button id="btn-skip" class="btn btn-warning btn-large" disabled>
+                            <span>⏭</span> Skip Token
+                        </button>
+                        <button id="btn-recall" class="btn btn-info btn-large">
+                            <span>↩</span> Recall Skipped
+                        </button>
+                    </div>
+                    
+                    <!-- Stats -->
+                    <div class="counter-stats">
+                        <div class="stat-item">
+                            <span class="stat-label">Served Today</span>
+                            <span class="stat-value" id="served-today">0</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">Status</span>
+                            <span class="stat-value" id="counter-status">Idle</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+    
+    <script src="/static/js/common.js"></script>
+    <script>
+        let selectedCounter = null;
+        let currentDepartment = null;
+        
+        const counterSelect = document.getElementById('counter-select');
+        const counterPanel = document.getElementById('counter-panel');
+        const btnServeNext = document.getElementById('btn-serve-next');
+        const btnComplete = document.getElementById('btn-complete');
+        const btnSkip = document.getElementById('btn-skip');
+        const btnRecall = document.getElementById('btn-recall');
+        
+        counterSelect.addEventListener('change', (e) => {
+            selectedCounter = e.target.value;
+            if (selectedCounter) {
+                // Determine department
+                if (selectedCounter.includes('Finance')) currentDepartment = 'Finance';
+                else if (selectedCounter.includes('Library')) currentDepartment = 'Library';
+                else if (selectedCounter.includes('Admin')) currentDepartment = 'Administration';
+                
+                counterPanel.style.display = 'block';
+                loadCounterStatus();
+            } else {
+                counterPanel.style.display = 'none';
+            }
+        });
+        
+        btnServeNext.addEventListener('click', serveNext);
+        btnComplete.addEventListener('click', completeService);
+        btnSkip.addEventListener('click', skipToken);
+        btnRecall.addEventListener('click', recallToken);
+        
+        async function loadCounterStatus() {
+            if (!selectedCounter) return;
+            
+            try {
+                const response = await fetch(`/api/staff/counter/${selectedCounter}`);
+                const data = await response.json();
+                
+                const tokenInfo = document.getElementById('current-token-info');
+                const servedToday = document.getElementById('served-today');
+                const counterStatus = document.getElementById('counter-status');
+                
+                servedToday.textContent = data.served_count;
+                counterStatus.textContent = data.status;
+                
+                if (data.current_token) {
+                    const token = data.current_token;
+                    tokenInfo.innerHTML = `
+                        <div class="token-number">${token.token_id}</div>
+                        <div class="token-details">
+                            <p><strong>Name:</strong> ${token.user_name}</p>
+                            <p><strong>Type:</strong> <span class="badge badge-${token.user_type.toLowerCase()}">${token.user_type}</span></p>
+                            <p><strong>Department:</strong> ${token.department}</p>
+                        </div>
+                    `;
+                    btnComplete.disabled = false;
+                    btnSkip.disabled = false;
+                    btnServeNext.disabled = true;
+                } else {
+                    tokenInfo.innerHTML = '<p class="no-token">No token being served</p>';
+                    btnComplete.disabled = true;
+                    btnSkip.disabled = true;
+                    btnServeNext.disabled = false;
+                }
+            } catch (error) {
+                console.error('Error loading counter status:', error);
+            }
+        }
+        
+        async function serveNext() {
+            if (!selectedCounter) return;
+            
+            try {
+                const response = await fetch('/api/staff/serve', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ counter: selectedCounter })
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    showNotification('Token served successfully!', 'success');
+                    loadCounterStatus();
+                } else {
+                    showNotification(result.error || 'Failed to serve token', 'error');
+                }
+            } catch (error) {
+                console.error('Error serving token:', error);
+                showNotification('Failed to serve token', 'error');
+            }
+        }
+        
+        async function completeService() {
+            if (!selectedCounter) return;
+            
+            try {
+                const response = await fetch('/api/staff/complete', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ counter: selectedCounter })
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    showNotification('Service completed!', 'success');
+                    loadCounterStatus();
+                } else {
+                    showNotification(result.error || 'Failed to complete service', 'error');
+                }
+            } catch (error) {
+                console.error('Error completing service:', error);
+                showNotification('Failed to complete service', 'error');
+            }
+        }
+        
+        async function skipToken() {
+            if (!selectedCounter) return;
+            
+            try {
+                const response = await fetch('/api/staff/skip', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ counter: selectedCounter })
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    showNotification('Token skipped!', 'info');
+                    loadCounterStatus();
+                } else {
+                    showNotification(result.error || 'Failed to skip token', 'error');
+                }
+            } catch (error) {
+                console.error('Error skipping token:', error);
+                showNotification('Failed to skip token', 'error');
+            }
+        }
+        
+        async function recallToken() {
+            if (!currentDepartment) return;
+            
+            try {
+                const response = await fetch('/api/staff/recall', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ department: currentDepartment })
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    showNotification('Token recalled successfully!', 'success');
+                    loadCounterStatus();
+                } else {
+                    showNotification(result.error || 'No skipped tokens to recall', 'info');
+                }
+            } catch (error) {
+                console.error('Error recalling token:', error);
+                showNotification('Failed to recall token', 'error');
+            }
+        }
+        
+        function showNotification(message, type) {
+            // Simple notification
+            const notification = document.createElement('div');
+            notification.className = `notification notification-${type}`;
+            notification.textContent = message;
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.remove();
+            }, 3000);
+        }
+    </script>
+</body>
+</html>

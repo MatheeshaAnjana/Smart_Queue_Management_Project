@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Smart Campus Queue Management</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Sidebar -->
+        <nav class="sidebar">
+            <div class="sidebar-header">
+                <div class="logo">
+                    <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
+                        <rect x="4" y="8" width="24" height="16" rx="2" stroke="#4A90E2" stroke-width="2" fill="none"/>
+                        <path d="M12 14 L16 18 L22 12" stroke="#4A90E2" stroke-width="2" stroke-linecap="round"/>
+                    </svg>
+                    <h1>SMART QUEUE</h1>
+                </div>
+            </div>
+            
+            <ul class="sidebar-menu">
+                <li class="active">
+                    <a href="/dashboard">
+                        <span class="icon">📊</span>
+                        <span>Dashboard</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="/token-request">
+                        <span class="icon">🎫</span>
+                        <span>Token Request</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="/public-display">
+                        <span class="icon">📺</span>
+                        <span>Public Display</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="/counter-control">
+                        <span class="icon">🎮</span>
+                        <span>Counter Control</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="/sort-filter">
+                        <span class="icon">⚡</span>
+                        <span>Sort & Filter</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="/feedback">
+                        <span class="icon">⭐</span>
+                        <span>Feedback</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="/analytics">
+                        <span class="icon">📈</span>
+                        <span>Analytics</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="/algorithm-docs">
+                        <span class="icon">💻</span>
+                        <span>Algorithm Docs</span>
+                    </a>
+                </li>
+            </ul>
+            
+            <div class="sidebar-footer">
+                <p>© 2024 Smart Campus</p>
+            </div>
+        </nav>
+        
+        <!-- Main Content -->
+        <main class="main-content">
+            <header class="top-bar">
+                <h2>Dashboard</h2>
+                <div class="user-info">
+                    <span>Admin User</span>
+                    <span class="user-role">Campus Official</span>
+                    <div class="user-avatar">AD</div>
+                </div>
+            </header>
+            
+            <div class="content-area">
+                <!-- Statistics Cards -->
+                <div class="stats-grid">
+                    <div class="stat-card orange">
+                        <div class="stat-icon">🕐</div>
+                        <div class="stat-info">
+                            <p class="stat-label">Pending Tokens</p>
+                            <h3 class="stat-value" id="pending-count">0</h3>
+                        </div>
+                    </div>
+                    
+                    <div class="stat-card blue">
+                        <div class="stat-icon">👤</div>
+                        <div class="stat-info">
+                            <p class="stat-label">Currently Serving</p>
+                            <h3 class="stat-value" id="serving-count">0</h3>
+                        </div>
+                    </div>
+                    
+                    <div class="stat-card green">
+                        <div class="stat-icon">✓</div>
+                        <div class="stat-info">
+                            <p class="stat-label">Total Served Today</p>
+                            <h3 class="stat-value" id="served-count">0</h3>
+                        </div>
+                    </div>
+                    
+                    <div class="stat-card purple">
+                        <div class="stat-icon">⏱</div>
+                        <div class="stat-info">
+                            <p class="stat-label">Avg Wait (mins)</p>
+                            <h3 class="stat-value" id="avg-wait">0</h3>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Recent Activity -->
+                <div class="section">
+                    <h3>Recent Activity</h3>
+                    <div class="table-container">
+                        <table class="activity-table">
+                            <thead>
+                                <tr>
+                                    <th>Token</th>
+                                    <th>User</th>
+                                    <th>Type</th>
+                                    <th>Status</th>
+                                    <th>Timestamp</th>
+                                </tr>
+                            </thead>
+                            <tbody id="activity-tbody">
+                                <tr>
+                                    <td colspan="5" class="text-center">Loading...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+    
+    <script src="/static/js/common.js"></script>
+    <script src="/static/js/staff.js"></script>
+    <script>
+        // Load dashboard data
+        async function loadDashboard() {
+            try {
+                // Load stats
+                const statsResponse = await fetch('/api/dashboard/stats');
+                const stats = await statsResponse.json();
+                
+                document.getElementById('pending-count').textContent = stats.pending;
+                document.getElementById('serving-count').textContent = stats.serving;
+                document.getElementById('served-count').textContent = stats.served;
+                document.getElementById('avg-wait').textContent = stats.avg_wait;
+                
+                // Load recent activity
+                const activityResponse = await fetch('/api/dashboard/activity');
+                const activity = await activityResponse.json();
+                
+                const tbody = document.getElementById('activity-tbody');
+                
+                if (activity.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="5" class="text-center">No recent activity</td></tr>';
+                } else {
+                    tbody.innerHTML = activity.map(token => `
+                        <tr>
+                            <td><span class="token-badge">${token.token_id}</span></td>
+                            <td>${token.user_name}</td>
+                            <td><span class="badge badge-${token.user_type.toLowerCase()}">${token.user_type}</span></td>
+                            <td><span class="status-${token.status.toLowerCase()}">${token.status}</span></td>
+                            <td>${formatTime(token.timestamp)}</td>
+                        </tr>
+                    `).join('');
+                }
+            } catch (error) {
+                console.error('Error loading dashboard:', error);
+            }
+        }
+        
+        function formatTime(timestamp) {
+            const date = new Date(timestamp);
+            return date.toLocaleTimeString('en-US', { 
+                hour: '2-digit', 
+                minute: '2-digit',
+                second: '2-digit'
+            });
+        }
+        
+        // Load on page load
+        loadDashboard();
+        
+        // Refresh every 5 seconds
+        setInterval(loadDashboard, 5000);
+    </script>
+</body>
+</html>

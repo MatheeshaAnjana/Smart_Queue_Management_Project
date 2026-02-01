@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Feedback - Smart Campus Queue</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+    <div class="container">
+        <nav class="sidebar">
+            <div class="sidebar-header">
+                <div class="logo">
+                    <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
+                        <rect x="4" y="8" width="24" height="16" rx="2" stroke="#4A90E2" stroke-width="2" fill="none"/>
+                        <path d="M12 14 L16 18 L22 12" stroke="#4A90E2" stroke-width="2" stroke-linecap="round"/>
+                    </svg>
+                    <h1>SMART QUEUE</h1>
+                </div>
+            </div>
+            <ul class="sidebar-menu">
+                <li><a href="/dashboard"><span class="icon">📊</span><span>Dashboard</span></a></li>
+                <li><a href="/token-request"><span class="icon">🎫</span><span>Token Request</span></a></li>
+                <li><a href="/public-display"><span class="icon">📺</span><span>Public Display</span></a></li>
+                <li><a href="/counter-control"><span class="icon">🎮</span><span>Counter Control</span></a></li>
+                <li><a href="/sort-filter"><span class="icon">⚡</span><span>Sort & Filter</span></a></li>
+                <li class="active"><a href="/feedback"><span class="icon">⭐</span><span>Feedback</span></a></li>
+                <li><a href="/analytics"><span class="icon">📈</span><span>Analytics</span></a></li>
+                <li><a href="/algorithm-docs"><span class="icon">💻</span><span>Algorithm Docs</span></a></li>
+            </ul>
+            <div class="sidebar-footer"><p>© 2024 Smart Campus</p></div>
+        </nav>
+        <main class="main-content">
+            <header class="top-bar"><h2>Submit Feedback</h2></header>
+            <div class="content-area">
+                <div class="form-container">
+                    <h3>Rate Your Experience</h3>
+                    <form id="feedback-form" class="token-form">
+                        <div class="form-group">
+                            <label for="token-id">Token ID *</label>
+                            <input type="text" id="token-id" required placeholder="e.g., FIN-001">
+                        </div>
+                        <div class="form-group">
+                            <label>Rating *</label>
+                            <div class="rating-stars" id="rating-stars">
+                                <span class="star" data-rating="1">★</span>
+                                <span class="star" data-rating="2">★</span>
+                                <span class="star" data-rating="3">★</span>
+                                <span class="star" data-rating="4">★</span>
+                                <span class="star" data-rating="5">★</span>
+                            </div>
+                            <input type="hidden" id="rating-value" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="feedback-text">Feedback (Optional)</label>
+                            <textarea id="feedback-text" rows="4" placeholder="Share your experience..."></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-primary btn-large">Submit Feedback</button>
+                    </form>
+                    <div id="feedback-success" style="display:none;" class="success-message">
+                        <h3>✓ Thank you for your feedback!</h3>
+                        <button class="btn btn-secondary" onclick="location.reload()">Submit Another</button>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+    <script src="/static/js/common.js"></script>
+    <script>
+        let selectedRating = 0;
+        const stars = document.querySelectorAll('.star');
+        stars.forEach(star => {
+            star.addEventListener('click', () => {
+                selectedRating = parseInt(star.dataset.rating);
+                document.getElementById('rating-value').value = selectedRating;
+                stars.forEach((s, i) => {
+                    s.classList.toggle('active', i < selectedRating);
+                });
+            });
+        });
+        
+        document.getElementById('feedback-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const tokenId = document.getElementById('token-id').value;
+            const rating = parseInt(document.getElementById('rating-value').value);
+            const feedback = document.getElementById('feedback-text').value;
+            
+            if (!rating) {
+                alert('Please select a rating');
+                return;
+            }
+            
+            try {
+                const response = await fetch('/api/rating', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ token_id: tokenId, rating, feedback })
+                });
+                const result = await response.json();
+                if (result.success) {
+                    document.getElementById('feedback-form').style.display = 'none';
+                    document.getElementById('feedback-success').style.display = 'block';
+                } else {
+                    alert(result.error || 'Failed to submit feedback');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Failed to submit feedback');
+            }
+        });
+    </script>
+</body>
+</html>

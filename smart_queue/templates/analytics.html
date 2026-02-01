@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Analytics - Smart Campus Queue</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+    <div class="container">
+        <nav class="sidebar">
+            <div class="sidebar-header">
+                <div class="logo">
+                    <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
+                        <rect x="4" y="8" width="24" height="16" rx="2" stroke="#4A90E2" stroke-width="2" fill="none"/>
+                        <path d="M12 14 L16 18 L22 12" stroke="#4A90E2" stroke-width="2" stroke-linecap="round"/>
+                    </svg>
+                    <h1>SMART QUEUE</h1>
+                </div>
+            </div>
+            <ul class="sidebar-menu">
+                <li><a href="/dashboard"><span class="icon">📊</span><span>Dashboard</span></a></li>
+                <li><a href="/token-request"><span class="icon">🎫</span><span>Token Request</span></a></li>
+                <li><a href="/public-display"><span class="icon">📺</span><span>Public Display</span></a></li>
+                <li><a href="/counter-control"><span class="icon">🎮</span><span>Counter Control</span></a></li>
+                <li><a href="/sort-filter"><span class="icon">⚡</span><span>Sort & Filter</span></a></li>
+                <li><a href="/feedback"><span class="icon">⭐</span><span>Feedback</span></a></li>
+                <li class="active"><a href="/analytics"><span class="icon">📈</span><span>Analytics</span></a></li>
+                <li><a href="/algorithm-docs"><span class="icon">💻</span><span>Algorithm Docs</span></a></li>
+            </ul>
+            <div class="sidebar-footer"><p>© 2024 Smart Campus</p></div>
+        </nav>
+        <main class="main-content">
+            <header class="top-bar"><h2>Rating Analytics</h2></header>
+            <div class="content-area">
+                <div class="section">
+                    <h3>Department Ratings</h3>
+                    <div id="analytics-container" class="analytics-grid">
+                        <p class="text-center">Loading analytics...</p>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+    <script src="/static/js/common.js"></script>
+    <script>
+        async function loadAnalytics() {
+            try {
+                const response = await fetch('/api/analytics');
+                const data = await response.json();
+                const container = document.getElementById('analytics-container');
+                
+                if (!data.analytics || data.analytics.length === 0) {
+                    container.innerHTML = '<p class="text-center">No ratings yet</p>';
+                    return;
+                }
+                
+                container.innerHTML = data.analytics.map(dept => {
+                    const stars = '★'.repeat(Math.round(dept.average_rating)) + '☆'.repeat(5 - Math.round(dept.average_rating));
+                    return `
+                        <div class="analytics-card">
+                            <h4>${dept.department}</h4>
+                            <div class="rating-display">${stars}</div>
+                            <p class="rating-value">${dept.average_rating.toFixed(2)} / 5.0</p>
+                            <p class="rating-count">Based on ${dept.total_ratings} ratings</p>
+                            <div class="distribution">
+                                ${[5,4,3,2,1].map(star => `
+                                    <div class="dist-row">
+                                        <span>${star}★</span>
+                                        <div class="bar"><div class="fill" style="width: ${dept.distribution[star] * 100 / dept.total_ratings}%"></div></div>
+                                        <span>${dept.distribution[star]}</span>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        }
+        
+        loadAnalytics();
+        setInterval(loadAnalytics, 10000);
+    </script>
+</body>
+</html>
