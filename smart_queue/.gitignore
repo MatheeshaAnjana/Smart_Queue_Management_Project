@@ -1,0 +1,69 @@
+# =========================
+# Python
+# =========================
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.Python
+.env
+.venv
+env/
+venv/
+ENV/
+
+# =========================
+# Flask
+# =========================
+instance/
+.webassets-cache
+
+# =========================
+# IDE / Editor
+# =========================
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# =========================
+# OS Files
+# =========================
+.DS_Store
+Thumbs.db
+
+# =========================
+# Logs
+# =========================
+*.log
+
+# =========================
+# Build / Cache
+# =========================
+build/
+dist/
+*.egg-info/
+
+# =========================
+# Temporary / Runtime files
+# =========================
+*.tmp
+*.temp
+
+# =========================
+# Node (if any frontend tools added later)
+# =========================
+node_modules/
+
+# =========================
+# Zip / Archive files
+# =========================
+*.zip
+*.tar
+*.gz
+
+# =========================
+# Optional: Ignore screenshots / exports
+# =========================
+screenshots/
+exports/
