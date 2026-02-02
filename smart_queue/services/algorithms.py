@@ -1,38 +1,12 @@
-"""
-Algorithms Module
-Contains all sorting, filtering, and prediction algorithms
-
-Algorithms Implemented:
-1. Merge Sort - O(n log n)
-2. Waiting Time Prediction - O(1)
-3. Load Balancing - O(n)
-4. Rating Analytics - O(n)
-"""
 
 from config import Config
 
 class Algorithms:
-    """
-    Collection of algorithms for queue management and analytics
-    """
+    
     
     @staticmethod
     def merge_sort(arr, key_func):
-        """
-        Merge Sort Algorithm - Divide and Conquer
-        Time Complexity: O(n log n)
-        Space Complexity: O(n)
         
-        This is a stable sorting algorithm that divides the array into halves,
-        recursively sorts them, and then merges them back together.
-        
-        Args:
-            arr: List to be sorted
-            key_func: Function to extract comparison key from elements
-            
-        Returns:
-            Sorted list
-        """
         # Base case: array of size 0 or 1 is already sorted
         if len(arr) <= 1:
             return arr
@@ -51,18 +25,7 @@ class Algorithms:
     
     @staticmethod
     def _merge(left, right, key_func):
-        """
-        Helper function to merge two sorted arrays
-        Time Complexity: O(n)
-        
-        Args:
-            left: Sorted left array
-            right: Sorted right array
-            key_func: Function to extract comparison key
-            
-        Returns:
-            Merged sorted array
-        """
+       
         result = []
         i = j = 0
         
@@ -83,19 +46,7 @@ class Algorithms:
     
     @staticmethod
     def predict_waiting_time(queue_position, avg_service_time=None):
-        """
-        Waiting Time Prediction Algorithm
-        Time Complexity: O(1)
-        
-        Formula: waiting_time = users_ahead × average_service_time
-        
-        Args:
-            queue_position: Position in queue (1 = next to serve)
-            avg_service_time: Average service time in minutes
-            
-        Returns:
-            Estimated waiting time in minutes
-        """
+       
         if avg_service_time is None:
             avg_service_time = Config.AVERAGE_SERVICE_TIME
         
@@ -107,19 +58,7 @@ class Algorithms:
     
     @staticmethod
     def load_balance(counters_load, department):
-        """
-        Load Balancing Algorithm - Shortest Queue First
-        Time Complexity: O(n) where n is number of counters
-        
-        Assigns token to the counter with the least load
-        
-        Args:
-            counters_load: Dictionary {counter_name: queue_length}
-            department: Department name
-            
-        Returns:
-            Name of the counter with minimum load
-        """
+      
         # Get counters for this department
         dept_counters = Config.COUNTERS.get(department, [])
         
@@ -140,16 +79,7 @@ class Algorithms:
     
     @staticmethod
     def calculate_statistics(ratings_list):
-        """
-        Calculate rating statistics
-        Time Complexity: O(n)
-        
-        Args:
-            ratings_list: List of rating values
-            
-        Returns:
-            Dictionary with mean, median, mode, and distribution
-        """
+       
         if not ratings_list:
             return {
                 'mean': 0,
@@ -192,17 +122,7 @@ class Algorithms:
     
     @staticmethod
     def filter_tokens(tokens, filters):
-        """
-        Filter tokens based on multiple criteria
-        Time Complexity: O(n)
-        
-        Args:
-            tokens: List of token dictionaries
-            filters: Dictionary of filter criteria
-            
-        Returns:
-            Filtered list of tokens
-        """
+       
         result = tokens
         
         # Filter by department
@@ -225,18 +145,7 @@ class Algorithms:
     
     @staticmethod
     def sort_tokens(tokens, sort_by='token_id', reverse=False):
-        """
-        Sort tokens using merge sort
-        Time Complexity: O(n log n)
         
-        Args:
-            tokens: List of token dictionaries
-            sort_by: Key to sort by (token_id, priority, waiting_time, timestamp)
-            reverse: Boolean for descending order
-            
-        Returns:
-            Sorted list of tokens
-        """
         # Define key functions for different sort types
         key_functions = {
             'token_id': lambda t: t['token_id'],

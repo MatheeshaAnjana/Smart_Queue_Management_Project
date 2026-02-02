@@ -1,10 +1,4 @@
-"""
-Queue Service - Main Business Logic
-Manages all queue operations, token generation, and service flow
 
-This service integrates all data structures and algorithms to provide
-a complete queue management system.
-"""
 
 from datetime import datetime
 from config import Config
@@ -16,10 +10,7 @@ from services.data_structures.rating_map import RatingMap
 from services.algorithms import Algorithms
 
 class QueueService:
-    """
-    Main service class that manages the entire queue system
-    Integrates all data structures and provides business logic
-    """
+   
     
     def __init__(self):
         """Initialize all data structures"""
@@ -60,17 +51,7 @@ class QueueService:
         }
     
     def request_token(self, user_name, user_type, department):
-        """
-        Generate a new token and add to appropriate queue
         
-        Args:
-            user_name: Name of the user
-            user_type: Student/Staff/Emergency
-            department: Finance/Library/Administration
-            
-        Returns:
-            Dictionary with token information
-        """
         # Get department prefix
         dept_prefix = Config.DEPARTMENTS.get(department)
         if not dept_prefix:
@@ -127,16 +108,7 @@ class QueueService:
         }
     
     def serve_next(self, counter):
-        """
-        Serve the next token for a specific counter
-        Priority queue is checked first, then normal queue
         
-        Args:
-            counter: Counter name (e.g., "Finance-1")
-            
-        Returns:
-            Token data or None
-        """
         # Determine department from counter name
         department = self._get_department_from_counter(counter)
         if not department:
@@ -170,15 +142,7 @@ class QueueService:
         return {'success': True, 'token': token}
     
     def complete_service(self, counter):
-        """
-        Mark current token as served and clear counter
-        
-        Args:
-            counter: Counter name
-            
-        Returns:
-            Success status
-        """
+       
         current_token_id = self.counter_status[counter]['current_token']
         
         if not current_token_id:
@@ -201,15 +165,7 @@ class QueueService:
         return {'success': True}
     
     def skip_token(self, counter):
-        """
-        Skip the current token and push to stack for recall
         
-        Args:
-            counter: Counter name
-            
-        Returns:
-            Success status
-        """
         current_token_id = self.counter_status[counter]['current_token']
         
         if not current_token_id:
@@ -237,16 +193,7 @@ class QueueService:
         return {'success': True, 'token_id': current_token_id}
     
     def recall_token(self, department):
-        """
-        Recall (pop) the most recently skipped token from stack
-        and reinsert into priority queue
         
-        Args:
-            department: Department name
-            
-        Returns:
-            Recalled token data
-        """
         # Pop from skipped stack
         token = self.skipped_stacks[department].pop()
         
@@ -269,13 +216,7 @@ class QueueService:
         return {'success': True, 'token': token}
     
     def get_public_display_data(self):
-        """
-        Get data for public display screen
-        Shows current serving tokens and queue status
         
-        Returns:
-            Dictionary with display data
-        """
         display_data = []
         
         for dept, counters in Config.COUNTERS.items():
@@ -311,12 +252,7 @@ class QueueService:
         return display_data
     
     def get_dashboard_stats(self):
-        """
-        Get statistics for dashboard
         
-        Returns:
-            Dictionary with stats
-        """
         # Count currently serving
         serving_count = sum(1 for c in self.counter_status.values() 
                           if c['current_token'] is not None)
@@ -333,12 +269,7 @@ class QueueService:
         }
     
     def get_recent_activity(self, limit=10):
-        """
-        Get recent token activity
         
-        Returns:
-            List of recent tokens
-        """
         all_tokens = self.token_registry.get_all()
         # Sort by timestamp (most recent first)
         sorted_tokens = sorted(all_tokens, 
@@ -347,17 +278,7 @@ class QueueService:
         return sorted_tokens[:limit]
     
     def add_rating(self, token_id, rating, feedback=""):
-        """
-        Add rating and feedback for a token
         
-        Args:
-            token_id: Token ID
-            rating: Rating value (1-5)
-            feedback: Optional feedback text
-            
-        Returns:
-            Success status
-        """
         token = self.token_registry.lookup(token_id)
         if not token:
             return {'error': 'Invalid token'}
@@ -370,12 +291,7 @@ class QueueService:
         return {'success': True}
     
     def get_analytics(self):
-        """
-        Get analytics data for all departments
         
-        Returns:
-            Dictionary with analytics
-        """
         analytics = []
         
         for dept in Config.DEPARTMENTS.keys():
@@ -396,17 +312,7 @@ class QueueService:
         return analytics
     
     def get_sorted_queue(self, department, sort_by='token_id', filters=None):
-        """
-        Get sorted and filtered queue view
         
-        Args:
-            department: Department name
-            sort_by: Sort criteria
-            filters: Filter dictionary
-            
-        Returns:
-            Sorted and filtered token list
-        """
         # Get all tokens for department
         tokens = self.token_registry.get_by_department(department)
         
@@ -422,7 +328,7 @@ class QueueService:
     # Helper methods
     
     def _get_queue_position(self, department, token_id):
-        """Calculate position in queue"""
+        
         position = 1
         
         # Check priority queue
@@ -442,7 +348,7 @@ class QueueService:
         return position
     
     def _get_counter_loads(self, department):
-        """Get load (queue length) for each counter"""
+       
         loads = {}
         for counter in Config.COUNTERS.get(department, []):
             # Count tokens assigned to this counter
@@ -452,7 +358,7 @@ class QueueService:
         return loads
     
     def _get_department_from_counter(self, counter):
-        """Determine department from counter name"""
+        
         for dept, counters in Config.COUNTERS.items():
             if counter in counters:
                 return dept

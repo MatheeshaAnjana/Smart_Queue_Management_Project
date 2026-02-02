@@ -1,10 +1,7 @@
-"""
-Configuration file for Smart Campus Queue Management System
-Contains all application settings and constants
-"""
+
 
 class Config:
-    """Application configuration class"""
+    
     
     # Flask settings
     SECRET_KEY = 'smart-campus-queue-2024'

@@ -1,7 +1,3 @@
-"""
-Staff Routes - API endpoints for staff operations
-Handles serve, skip, recall, and queue management
-"""
 
 from flask import Blueprint, request, jsonify
 from services.queue_service import queue_service
@@ -10,20 +6,7 @@ staff_bp = Blueprint('staff', __name__)
 
 @staff_bp.route('/staff/serve', methods=['POST'])
 def serve_next():
-    """
-    API endpoint to serve the next token in queue
-    
-    Request body:
-        {
-            "counter": "Finance-1"
-        }
-    
-    Response:
-        {
-            "success": true,
-            "token": {...}
-        }
-    """
+
     try:
         data = request.get_json()
         counter = data.get('counter')
@@ -43,19 +26,7 @@ def serve_next():
 
 @staff_bp.route('/staff/complete', methods=['POST'])
 def complete_service():
-    """
-    API endpoint to complete service for current token
-    
-    Request body:
-        {
-            "counter": "Finance-1"
-        }
-    
-    Response:
-        {
-            "success": true
-        }
-    """
+   
     try:
         data = request.get_json()
         counter = data.get('counter')
@@ -75,21 +46,7 @@ def complete_service():
 
 @staff_bp.route('/staff/skip', methods=['POST'])
 def skip_token():
-    """
-    API endpoint to skip the current token
-    Pushes token to skip stack for later recall
-    
-    Request body:
-        {
-            "counter": "Finance-1"
-        }
-    
-    Response:
-        {
-            "success": true,
-            "token_id": "FIN-001"
-        }
-    """
+   
     try:
         data = request.get_json()
         counter = data.get('counter')
@@ -109,21 +66,7 @@ def skip_token():
 
 @staff_bp.route('/staff/recall', methods=['POST'])
 def recall_token():
-    """
-    API endpoint to recall a skipped token
-    Pops token from skip stack and reinserts into priority queue
-    
-    Request body:
-        {
-            "department": "Finance"
-        }
-    
-    Response:
-        {
-            "success": true,
-            "token": {...}
-        }
-    """
+   
     try:
         data = request.get_json()
         department = data.get('department')
@@ -143,17 +86,7 @@ def recall_token():
 
 @staff_bp.route('/staff/counter/<counter>', methods=['GET'])
 def get_counter_status(counter):
-    """
-    API endpoint to get status of a specific counter
     
-    Response:
-        {
-            "counter": "Finance-1",
-            "current_token": {...},
-            "status": "serving",
-            "served_count": 10
-        }
-    """
     try:
         if counter not in queue_service.counter_status:
             return jsonify({'error': 'Invalid counter'}), 404
@@ -176,20 +109,7 @@ def get_counter_status(counter):
 
 @staff_bp.route('/staff/queue/sorted', methods=['GET'])
 def get_sorted_queue():
-    """
-    API endpoint to get sorted and filtered queue view
     
-    Query params:
-        department: Department name (required)
-        sort_by: Sort criteria (token_id, priority, waiting_time, timestamp)
-        status: Filter by status
-        user_type: Filter by user type
-    
-    Response:
-        {
-            "tokens": [...]
-        }
-    """
     try:
         department = request.args.get('department')
         sort_by = request.args.get('sort_by', 'token_id')
@@ -214,14 +134,7 @@ def get_sorted_queue():
 
 @staff_bp.route('/staff/skipped/<department>', methods=['GET'])
 def get_skipped_tokens(department):
-    """
-    API endpoint to get all skipped tokens for a department
-    
-    Response:
-        {
-            "skipped": [...]
-        }
-    """
+ 
     try:
         if department not in queue_service.skipped_stacks:
             return jsonify({'error': 'Invalid department'}), 404

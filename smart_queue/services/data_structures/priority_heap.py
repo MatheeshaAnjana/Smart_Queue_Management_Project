@@ -1,30 +1,12 @@
-"""
-Priority Queue Implementation using Manual Min-Heap
-This implements a priority-based queue where Emergency > Staff > Student
 
-Data Structure: Min-Heap (Priority Queue)
-Time Complexity:
-- push(): O(log n)
-- pop(): O(log n)
-- peek(): O(1)
-"""
 
 from datetime import datetime
 
 class PriorityHeap:
-    """
-    Priority Queue implementation using manually implemented min-heap
-    Lower priority numbers are served first (min-heap)
-    Priority: Emergency(1) > Staff(2) > Student(3)
-    """
+   
     
     def __init__(self, capacity=100):
-        """
-        Initialize an empty priority queue
         
-        Args:
-            capacity: Initial maximum capacity of the heap
-        """
         self.capacity = capacity
         # Store heap elements as tuples: (priority, counter, token)
         self.heap = [None] * capacity
@@ -32,14 +14,7 @@ class PriorityHeap:
         self.counter = 0  # Counter to ensure FIFO for same priority
     
     def push(self, token, priority):
-        """
-        Add a token to the priority queue
-        Time Complexity: O(log n)
         
-        Args:
-            token: Dictionary containing token information
-            priority: Integer priority level (1=highest, 3=lowest)
-        """
         # Resize if heap is full
         if self.size_count >= self.capacity:
             self._resize()
@@ -56,13 +31,7 @@ class PriorityHeap:
         self._bubble_up(self.size_count - 1)
     
     def pop(self):
-        """
-        Remove and return the highest priority token
-        Time Complexity: O(log n)
         
-        Returns:
-            Token dictionary or None if heap is empty
-        """
         if self.is_empty():
             return None
         
@@ -84,46 +53,22 @@ class PriorityHeap:
         return min_element[2]
     
     def peek(self):
-        """
-        View the highest priority token without removing it
-        Time Complexity: O(1)
         
-        Returns:
-            Token dictionary or None if heap is empty
-        """
         if self.is_empty():
             return None
         # Return the token from the root element
         return self.heap[0][2]
     
     def is_empty(self):
-        """
-        Check if the priority queue is empty
-        Time Complexity: O(1)
         
-        Returns:
-            Boolean indicating if heap is empty
-        """
         return self.size_count == 0
     
     def size(self):
-        """
-        Get the number of tokens in the priority queue
-        Time Complexity: O(1)
         
-        Returns:
-            Integer count of tokens
-        """
         return self.size_count
     
     def get_all(self):
-        """
-        Get all tokens in priority order (for display purposes)
-        Time Complexity: O(n log n)
         
-        Returns:
-            List of all tokens sorted by priority
-        """
         # Create a copy of heap elements
         elements = []
         for i in range(self.size_count):
@@ -136,22 +81,13 @@ class PriorityHeap:
         return [token for priority, counter, token in elements]
     
     def clear(self):
-        """
-        Remove all tokens from the priority queue
-        Time Complexity: O(1)
-        """
+        
         self.heap = [None] * self.capacity
         self.size_count = 0
         self.counter = 0
     
     def _bubble_up(self, index):
-        """
-        Bubble up element at index to maintain min-heap property
-        Time Complexity: O(log n)
         
-        Args:
-            index: Index of element to bubble up
-        """
         while index > 0:
             parent_index = (index - 1) // 2
             
@@ -165,13 +101,7 @@ class PriorityHeap:
                 break
     
     def _bubble_down(self, index):
-        """
-        Bubble down element at index to maintain min-heap property
-        Time Complexity: O(log n)
         
-        Args:
-            index: Index of element to bubble down
-        """
         while True:
             left_child = 2 * index + 1
             right_child = 2 * index + 2
@@ -196,14 +126,7 @@ class PriorityHeap:
                 break
     
     def _compare(self, elem1, elem2):
-        """
-        Compare two heap elements
-        Returns: negative if elem1 < elem2, 0 if equal, positive if elem1 > elem2
         
-        Args:
-            elem1: First element tuple (priority, counter, token)
-            elem2: Second element tuple (priority, counter, token)
-        """
         # Compare by priority first
         if elem1[0] != elem2[0]:
             return elem1[0] - elem2[0]
@@ -211,10 +134,7 @@ class PriorityHeap:
         return elem1[1] - elem2[1]
     
     def _resize(self):
-        """
-        Double the capacity when heap is full
-        Time Complexity: O(n)
-        """
+        
         new_capacity = self.capacity * 2
         new_heap = [None] * new_capacity
         

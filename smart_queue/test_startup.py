@@ -1,7 +1,4 @@
 #!/usr/bin/env python3
-"""
-Quick startup test to verify the system works before running
-"""
 
 import sys
 import os

@@ -6,25 +6,7 @@ user_bp = Blueprint('user', __name__)
 
 @user_bp.route('/token/request', methods=['POST'])
 def request_token():
-    """
-    API endpoint to request a new token
     
-    Request body:
-        {
-            "user_name": "John Doe",
-            "user_type": "Student/Staff/Emergency",
-            "department": "Finance/Library/Administration"
-        }
-    
-    Response:
-        {
-            "success": true,
-            "token_id": "FIN-001",
-            "queue_position": 3,
-            "waiting_time": 10,
-            "counter": "Finance-1"
-        }
-    """
     try:
         data = request.get_json()
         
@@ -49,17 +31,7 @@ def request_token():
 
 @user_bp.route('/queue/status', methods=['GET'])
 def get_queue_status():
-    """
-    API endpoint to get current queue status
-    
-    Query params:
-        department (optional): Filter by department
-    
-    Response:
-        {
-            "queues": [...]
-        }
-    """
+  
     try:
         department = request.args.get('department')
         
@@ -77,17 +49,7 @@ def get_queue_status():
 
 @user_bp.route('/token/<token_id>', methods=['GET'])
 def get_token_info(token_id):
-    """
-    API endpoint to get information about a specific token
-    
-    Response:
-        {
-            "token_id": "FIN-001",
-            "user_name": "John",
-            "status": "WAITING",
-            ...
-        }
-    """
+   
     try:
         token = queue_service.token_registry.lookup(token_id)
         
@@ -112,21 +74,7 @@ def get_token_info(token_id):
 
 @user_bp.route('/rating', methods=['POST'])
 def submit_rating():
-    """
-    API endpoint to submit rating and feedback
     
-    Request body:
-        {
-            "token_id": "FIN-001",
-            "rating": 5,
-            "feedback": "Great service!"
-        }
-    
-    Response:
-        {
-            "success": true
-        }
-    """
     try:
         data = request.get_json()
         
@@ -154,22 +102,7 @@ def submit_rating():
 
 @user_bp.route('/analytics', methods=['GET'])
 def get_analytics():
-    """
-    API endpoint to get analytics data
     
-    Response:
-        {
-            "analytics": [
-                {
-                    "department": "Finance",
-                    "average_rating": 4.5,
-                    "total_ratings": 100,
-                    "distribution": {...}
-                },
-                ...
-            ]
-        }
-    """
     try:
         analytics = queue_service.get_analytics()
         return jsonify({'analytics': analytics}), 200
